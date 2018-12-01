@@ -1,5 +1,7 @@
 import { Physics, Input } from 'phaser';
 
+import { GunEntity } from '../entities/WeaponEntity';
+
 import MEMORIES from '../data/memories.json';
 import SKILLS from '../data/skills.json';
 import util from '../util';
@@ -48,8 +50,11 @@ export default class Player extends Physics.Arcade.Sprite {
     this.speechText.visible = false;
     this.teleportList = [];
     this.useKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.E);
+    this.attackKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.SPACE);
     this.healthBar = healthBar;
     this.alive = true;
+
+    this.equippedWeapon = new GunEntity(this.scene);
   }
 
   setTeleportList(newTeleportList) {
@@ -122,5 +127,15 @@ export default class Player extends Physics.Arcade.Sprite {
     if (!this.healthBar.value) {
       this.alive = false;
     }
+
+    this.attackUpdate();
+  }
+
+  attackUpdate() {
+    if (Input.Keyboard.JustDown(this.attackKey) == false || !this.equippedWeapon) {
+      return;
+    }
+
+    this.equippedWeapon.attack(this.scene, this);
   }
 };
