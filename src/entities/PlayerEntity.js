@@ -1,4 +1,4 @@
-import { Physics } from 'phaser';
+import { Physics, Input } from 'phaser';
 
 // TODO: Add combat, memory counter
 
@@ -14,7 +14,7 @@ const MEMORIES = [
 
 export default class Player extends Physics.Arcade.Sprite {
   constructor(config, worldLayer, cursors) {
-    super(config.scene, config.x, config.y , config.key);
+    super(config.scene, config.x, config.y, config.key);
     this.spawnPosition = { x: config.x, y: config.y };
     this.scene.physics.world.enable(this);
     this.scene.add.existing(this);
@@ -24,7 +24,7 @@ export default class Player extends Physics.Arcade.Sprite {
 
     // TIMERS
     this.jumpTimer = 0;
-    
+
     // handlers
     this.cursors = cursors;
 
@@ -44,11 +44,11 @@ export default class Player extends Physics.Arcade.Sprite {
     this.speechText.visible = false;
     this.speechTimer = 0;
     this.teleportList = [];
+    this.useKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.E);
   }
 
   setTeleportList(newTeleportList) {
     this.teleportList = newTeleportList;
-    console.log(this.teleportList.getChildren());
   }
 
   getMemory() {
@@ -65,19 +65,26 @@ export default class Player extends Physics.Arcade.Sprite {
     this.setPosition(this.spawnPosition.x, this.spawnPosition.y);
   }
 
+  teleportTo(destTeleport) {
+    if (Input.Keyboard.JustDown(this.useKey)) {
+      const destination = this.teleportList.find(teleport => teleport.name === destTeleport.destination);
+      this.setPosition(destination.x, destination.y);
+    }
+  }
+
   update(memoryList) {
     this.scene.physics.overlap(this, memoryList, this.getMemory, (player, memory) => memory.destroy(), this);
-    this.scene.physics.overlap(this, this.teleportList, () => console.log('tele'), (player, teleport) => console.log(teleport), this);
+    this.scene.physics.overlap(this, this.teleportList, null, (player, teleport) => this.teleportTo(teleport), this);
 
     this.body.setVelocityX(0);
     this.speechText.setPosition(this.body.x - (this.speechText.displayWidth / 3), this.body.y - (16 + this.speechText.displayHeight));
-  
+
     if (this.cursors.right.isDown) {
       this.body.setVelocityX(SPEED)
     } else if (this.cursors.left.isDown) {
       this.body.setVelocityX(-SPEED)
     }
-  
+
     if (this.cursors.up.isDown) {
       if (this.body.onFloor() && this.jumpTimer === 0) {
         this.jumpTimer = 1;
