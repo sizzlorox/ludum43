@@ -11,7 +11,7 @@ let MEMORY_COUNT = 0;
 const SPEED = 175;
 
 export default class Player extends Physics.Arcade.Sprite {
-  constructor(config, worldLayer, cursors) {
+  constructor(config, worldLayer, cursors, healthBar) {
     super(config.scene, config.x, config.y, config.key);
     this.spawnPosition = { x: config.x, y: config.y };
     this.scene.physics.world.enable(this);
@@ -19,6 +19,10 @@ export default class Player extends Physics.Arcade.Sprite {
     this.scene.physics.add.collider(this, worldLayer);
     this.body.collideWorldBounds = true;
     this.body.onWorldBounds = true;
+    this.playerData = {
+      health: 100,
+      skills: []
+    };
 
     // TIMERS
     this.jumpTimer = 0;
@@ -43,6 +47,8 @@ export default class Player extends Physics.Arcade.Sprite {
     this.speechTimer = 0;
     this.teleportList = [];
     this.useKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.E);
+    this.healthBar = healthBar;
+    this.alive = true;
   }
 
   setTeleportList(newTeleportList) {
@@ -65,6 +71,7 @@ export default class Player extends Physics.Arcade.Sprite {
     this.speechText.text = 'I need to be more careful.';
     this.speechTimer = this.scene.time.now;
     this.setPosition(this.spawnPosition.x, this.spawnPosition.y);
+    this.healthBar.decrease(util.enumHelper.damage.fall);
   }
 
   teleportTo(destTeleport) {
@@ -75,6 +82,14 @@ export default class Player extends Physics.Arcade.Sprite {
   }
 
   update(memoryList) {
+    if (!this.alive) {
+      this.speechText.visible = true;
+      this.speechTimer = this.scene.time.now;
+      this.speechText.text = 'YOU DEAD';
+
+      return;
+    }
+
     this.scene.physics.overlap(this, memoryList, this.getMemory, (player, memory) => memory.destroy(), this);
     this.scene.physics.overlap(this, this.teleportList, null, (player, teleport) => this.teleportTo(teleport), this);
 
@@ -98,6 +113,10 @@ export default class Player extends Physics.Arcade.Sprite {
 
     if (this.speechText.visible && (this.scene.time.now - this.speechTimer) > 1750) {
       this.speechText.visible = false;
+    }
+
+    if (!this.healthBar.value) {
+      this.alive = false;
     }
   }
 };
