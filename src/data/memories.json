@@ -7,11 +7,21 @@
   {
     "id": 2,
     "type": 1,
-    "description": "Memory alteration? Is nothing sacred anymore?"
+    "description": "Memory alteration?"
   },
   {
     "id": 3,
     "type": 1,
     "description": "This doesn't make any sense... Why would I agree to this?"
+  },
+  {
+    "id": 4,
+    "type": 1,
+    "description": "I was promoted?"
+  },
+  {
+    "id": 5,
+    "type": 1,
+    "description": "So they had upgraded my security level..."
   }
 ]
