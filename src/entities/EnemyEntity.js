@@ -39,7 +39,6 @@ export default class Enemy extends Physics.Arcade.Sprite {
   fallOutOfBounds() {
     this.alive = false;
     this.destroy();
-    console.log('HE DIEDED');
   }
 
   update() {

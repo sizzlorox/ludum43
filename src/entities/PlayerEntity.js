@@ -70,6 +70,7 @@ export default class Player extends Physics.Arcade.Sprite {
 
     this.speechText.text = selectedMemory.description;
     this.speechTimer = this.scene.time.now;
+    debugger;
 
     MEMORIES.find(memory => memory.id === selectedMemory.id).read = true;
     MEMORY_COUNT++;
@@ -90,6 +91,14 @@ export default class Player extends Physics.Arcade.Sprite {
     }
   }
 
+  useConsole(memory) {
+    if (memory.active && Input.Keyboard.JustDown(this.useKey)) {
+      this.getMemory();
+
+      memory.active = false;
+    }
+  }
+
   update(memoryList) {
     if (!this.alive) {
       this.speechText.visible = true;
@@ -99,7 +108,7 @@ export default class Player extends Physics.Arcade.Sprite {
       return;
     }
 
-    this.scene.physics.overlap(this, memoryList, this.getMemory, (player, memory) => memory.destroy(), this);
+    this.scene.physics.overlap(this, memoryList, null, (player, memory) => this.useConsole(memory), this);
     this.scene.physics.overlap(this, this.teleportList, null, (player, teleport) => this.teleportTo(teleport), this);
 
     this.body.setVelocityX(0);

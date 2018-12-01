@@ -34,7 +34,7 @@ export default class GameScene extends Scene {
     // GAME ASSETS
     this.load.image('player', 'assets/player.png');       // Loads player image
     this.load.image('nme', 'assets/nme.png')        // Loads enemy image
-    this.load.image('memory', 'assets/memory.png');       // Loads memory image
+    this.load.image('memory', 'assets/console_w.png');       // Loads memory image
   }
 
   create() {
@@ -42,6 +42,7 @@ export default class GameScene extends Scene {
     const map = this.make.tilemap({ key: 'map' });        // Creates map
     const tileset = map.addTilesetImage('tileset', 'tiles');        // adds tileset to map
     const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);        // Creates layer that renders above player
+    belowLayer.setDepth(-1);
     const worldLayer = map.createStaticLayer('World', tileset, 0, 0);       // Creates world layer that blocks player
     worldLayer.setCollisionByProperty({ isCollidable: true });        // Sets world layer to collide with player by tilemap tile property
     const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);        // Sets layer to render below player
@@ -98,14 +99,15 @@ export default class GameScene extends Scene {
       }))
     );
     this.Player.setTeleportList(this.teleportList);
+    this.Player.setDepth(1);
 
     this.memoryList = this.physics.add.group({
       classType: MemoryEntity,
       maxSize: 16,
       runChildUpdate: true
     });
-    this.physics.add.collider(this.memoryList, worldLayer)
-    memorySpawns.forEach(memory => this.memoryList.get(memory.x, memory.y));
+    this.physics.add.collider(this.memoryList, worldLayer);
+    memorySpawns.forEach(memory => this.memoryList.get(memory.x - 30, memory.y - 20));
 
     // World events
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels, 64, true, true, true, true);
