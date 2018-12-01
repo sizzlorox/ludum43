@@ -70,10 +70,20 @@ export default class Player extends Physics.Arcade.Sprite {
 
     this.speechText.text = selectedMemory.description;
     this.speechTimer = this.scene.time.now;
-    debugger;
 
     MEMORIES.find(memory => memory.id === selectedMemory.id).read = true;
     MEMORY_COUNT++;
+  }
+
+  terminalUnavailable() {
+    this.speechText.visible = true;
+    this.speechText.text = 'Looks like it\'s been disconnected...';
+
+    if (util.randomIntFromInterval(0, 10) > 5) {
+      this.speechText.text += ' Someone must be watching me.';
+    }
+
+    this.speechTimer = this.scene.time.now;
   }
 
   fallOutOfBounds() {
@@ -92,10 +102,14 @@ export default class Player extends Physics.Arcade.Sprite {
   }
 
   useConsole(memory) {
-    if (memory.active && Input.Keyboard.JustDown(this.useKey)) {
-      this.getMemory();
+    if (!memory.active && Input.Keyboard.JustDown(this.useKey)) {
+      return this.terminalUnavailable();
+    }
 
+    if (memory.active && Input.Keyboard.JustDown(this.useKey)) {
       memory.active = false;
+
+      return this.getMemory();
     }
   }
 
