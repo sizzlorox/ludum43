@@ -5,6 +5,7 @@ import MemoryEntity from '../entities/MemoryEntity';
 import PlayerEntity from '../entities/PlayerEntity';
 import EnemyEntity from '../entities/EnemyEntity';
 import TeleportEntity from '../entities/TeleportEntity';
+import HealthBar from '../hud/healthBar';
 
 // https://photonstorm.github.io/phaser3-docs/index.html
 // https://github.com/photonstorm/phaser3-examples
@@ -21,7 +22,8 @@ export default class GameScene extends Scene {
     // GameObjects
     this.Player;        // The player object
     this.memoryList;        // List of memorys in scene
-    this.teleportList;      // List of teleports
+    this.teleportList;
+    this.healthBar;
   }
 
   preload() {
@@ -54,15 +56,19 @@ export default class GameScene extends Scene {
     const teleportObjects = map.filterObjects('Teleport', objs => objs);
     const nmeSpawns = map.filterObjects('Enemy Spawn', objs => objs);
 
+    const camera = this.cameras.main;
+
+    this.healthBar = new HealthBar(this, camera.x, camera.y);
+
     // Player
     this.Player = new PlayerEntity(
       { scene: this, x: spawnPoint.x, y: spawnPoint.y, key: 'player' },       // Pass player initialize info
       worldLayer,       // Pass world layer to set it to collide with worldLayer
-      this.input.keyboard.createCursorKeys()        // Pass input cursor object to allow input to be handled
+      this.input.keyboard.createCursorKeys(),        // Pass input cursor object to allow input to be handled
+      this.healthBar
     );
 
     // Camera
-    const camera = this.cameras.main;
     camera.startFollow(this.Player);
     camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     camera.setZoom(2.5);
@@ -118,5 +124,7 @@ export default class GameScene extends Scene {
   update() {
     this.Player.update(this.memoryList);
     this.nmeList.forEach(nme => nme.update());
+    this.healthBar.updatePosition(this.cameras.main.worldView.x, this.cameras.main.worldView.y);
+    this.healthBar.draw();
   }
 }
