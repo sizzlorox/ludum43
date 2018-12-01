@@ -1,16 +1,14 @@
 import { Physics } from 'phaser';
 
+import MEMORIES from '../data/memories.json';
+import util from '../util';
+
 // TODO: Add combat, memory counter
 
 let MEMORY_COUNT = 0;
 
 // CONSTANTS
 const SPEED = 175;
-const MEMORIES = [
-  'I think I remember somthing...',
-  'Did I leave my stove on?',
-  'I think I know da wae...'
-];
 
 export default class Player extends Physics.Arcade.Sprite {
   constructor(config, worldLayer, cursors) {
@@ -53,8 +51,12 @@ export default class Player extends Physics.Arcade.Sprite {
 
   getMemory() {
     this.speechText.visible = true;
-    this.speechText.text = MEMORIES[MEMORY_COUNT];
+    const unreadMemories = MEMORIES.filter(memory => !memory.read);
+    const randomInt = util.randomIntFromInterval(0, 2);
+    this.speechText.text = MEMORIES[randomInt].description;
     this.speechTimer = this.scene.time.now;
+
+    MEMORIES[randomInt].read = true;
     MEMORY_COUNT++;
   }
 
