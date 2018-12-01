@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Uppercut Slash",
+    "damage": 20,
+    "description": "UPPERCUT, MOTHERFUCKER!",
+    "animation": {
+      "key": "uppercutSlash",
+      "frameRate": 6,
+      "repeat": -1
+    },
+    "keyPress": "F"
+  }
+]

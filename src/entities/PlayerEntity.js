@@ -3,6 +3,7 @@ import { Physics, Input } from 'phaser';
 import { GunEntity } from '../entities/WeaponEntity';
 
 import MEMORIES from '../data/memories.json';
+import SKILLS from '../data/skills.json';
 import util from '../util';
 
 // TODO: Add combat, memory counter
@@ -28,6 +29,7 @@ export default class Player extends Physics.Arcade.Sprite {
 
     // TIMERS
     this.jumpTimer = 0;
+    this.speechTimer = 0;
 
     // handlers
     this.cursors = cursors;
@@ -46,7 +48,6 @@ export default class Player extends Physics.Arcade.Sprite {
       }
     });
     this.speechText.visible = false;
-    this.speechTimer = 0;
     this.teleportList = [];
     this.useKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.E);
     this.attackKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.SPACE);
@@ -62,12 +63,15 @@ export default class Player extends Physics.Arcade.Sprite {
 
   getMemory() {
     this.speechText.visible = true;
+
     const unreadMemories = MEMORIES.filter(memory => !memory.read);
     const randomInt = util.randomIntFromInterval(0, unreadMemories.length - 1);
-    this.speechText.text = unreadMemories[randomInt].description;
+    const selectedMemory = unreadMemories[randomInt];
+
+    this.speechText.text = selectedMemory.description;
     this.speechTimer = this.scene.time.now;
 
-    MEMORIES.find(memory => memory.id === unreadMemories[randomInt].id).read = true;
+    MEMORIES.find(memory => memory.id === selectedMemory.id).read = true;
     MEMORY_COUNT++;
   }
 
