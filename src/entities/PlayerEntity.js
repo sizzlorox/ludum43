@@ -1,6 +1,7 @@
 import { Physics, Input } from 'phaser';
 
 import MEMORIES from '../data/memories.json';
+import SKILLS from '../data/skills.json';
 import util from '../util';
 
 // TODO: Add combat, memory counter
@@ -51,12 +52,15 @@ export default class Player extends Physics.Arcade.Sprite {
 
   getMemory() {
     this.speechText.visible = true;
+
     const unreadMemories = MEMORIES.filter(memory => !memory.read);
     const randomInt = util.randomIntFromInterval(0, unreadMemories.length - 1);
-    this.speechText.text = unreadMemories[randomInt].description;
+    const selectedMemory = unreadMemories[randomInt];
+
+    this.speechText.text = selectedMemory.description;
     this.speechTimer = this.scene.time.now;
 
-    MEMORIES.find(memory => memory.id === unreadMemories[randomInt].id).read = true;
+    MEMORIES.find(memory => memory.id === selectedMemory.id).read = true;
     MEMORY_COUNT++;
   }
 
