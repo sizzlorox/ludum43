@@ -3,6 +3,7 @@ import { Scene } from 'phaser';
 // Entities
 import MemoryEntity from '../entities/MemoryEntity';
 import PlayerEntity from '../entities/PlayerEntity';
+import EnemyEntity from '../entities/EnemyEntity';
 import TeleportEntity from '../entities/TeleportEntity';
 
 // https://photonstorm.github.io/phaser3-docs/index.html
@@ -20,7 +21,7 @@ export default class GameScene extends Scene {
     // GameObjects
     this.Player;        // The player object
     this.memoryList;        // List of memorys in scene
-    this.teleportList;
+    this.teleportList;      // List of teleports
   }
 
   preload() {
@@ -30,6 +31,7 @@ export default class GameScene extends Scene {
 
     // GAME ASSETS
     this.load.image('player', 'assets/player.png');       // Loads player image
+    this.load.image('nme', 'assets/nme.png')        // Loads enemy image
     this.load.image('memory', 'assets/memory.png');       // Loads memory image
   }
 
@@ -42,12 +44,44 @@ export default class GameScene extends Scene {
     worldLayer.setCollisionByProperty({ isCollidable: true });        // Sets world layer to collide with player by tilemap tile property
     const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);        // Sets layer to render below player
     aboveLayer.setDepth(10);        // Sets layer depth
+    const npcAvoidLayer = map.createStaticLayer('NPC Avoid', tileset, 0, 0);
+    npcAvoidLayer.setCollisionByProperty({ isCollidable: true });
+    npcAvoidLayer.setVisible(false);
 
-    this.teleportList = [];
-    // Spawns
+    // Map Objects
     const spawnPoint = map.findObject('Player Spawn', obj => obj.name === 'Player Spawn');        // Gets player spawnpoint by object layer name (set by tilemap)
     const memorySpawns = map.filterObjects('Memory Spawn', objs => objs);         // Loads memory spawns set by tilemap
     const teleportObjects = map.filterObjects('Teleport', objs => objs);
+    const nmeSpawns = map.filterObjects('Enemy Spawn', objs => objs);
+
+    // Player
+    this.Player = new PlayerEntity(
+      { scene: this, x: spawnPoint.x, y: spawnPoint.y, key: 'player' },       // Pass player initialize info
+      worldLayer,       // Pass world layer to set it to collide with worldLayer
+      this.input.keyboard.createCursorKeys()        // Pass input cursor object to allow input to be handled
+    );
+
+    // Camera
+    const camera = this.cameras.main;
+    camera.startFollow(this.Player);
+    camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    camera.setZoom(2.5);
+
+    // Lists
+    this.nmeList = [];
+    nmeSpawns.forEach(nmeSpawn => this.nmeList.push(
+      new EnemyEntity({
+        scene: this,
+        x: nmeSpawn.x,
+        y: nmeSpawn.y,
+        key: 'nme',
+      },
+      worldLayer,
+      npcAvoidLayer
+      )
+    ));
+
+    this.teleportList = [];
     teleportObjects.forEach(teleport => this.teleportList.push(
       new TeleportEntity({
         scene: this,
@@ -57,22 +91,8 @@ export default class GameScene extends Scene {
         destination: teleport.properties[0].value
       }))
     );
-
-    // Player
-    this.Player = new PlayerEntity(
-      { scene: this, x: spawnPoint.x, y: spawnPoint.y, key: 'player' },       // Pass player initialize info
-      worldLayer,       // Pass world layer to set it to collide with worldLayer
-      this.input.keyboard.createCursorKeys()        // Pass input cursor object to allow input to be handled
-    );
     this.Player.setTeleportList(this.teleportList);
 
-    // Camera
-    const camera = this.cameras.main;
-    camera.startFollow(this.Player);
-    camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-    camera.setZoom(2.5);
-
-    // Lists
     this.memoryList = this.physics.add.group({
       classType: MemoryEntity,
       maxSize: 16,
@@ -97,5 +117,6 @@ export default class GameScene extends Scene {
 
   update() {
     this.Player.update(this.memoryList);
+    this.nmeList.forEach(nme => nme.update());
   }
 }
