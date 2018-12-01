@@ -1,28 +1,76 @@
 import { Physics } from 'phaser';
 
+// TODO: Add combat, memory counter
+
+let MEMORY_COUNT = 0;
+
 // CONSTANTS
 const SPEED = 175;
+const MEMORIES = [
+  'I think I remember somthing...',
+  'Did I leave my stove on?',
+  'I think I know da wae...'
+];
 
 export default class Player extends Physics.Arcade.Sprite {
   constructor(config, worldLayer, cursors) {
     super(config.scene, config.x, config.y , config.key);
+    this.spawnPosition = { x: config.x, y: config.y };
     this.scene.physics.world.enable(this);
     this.scene.add.existing(this);
     this.scene.physics.add.collider(this, worldLayer);
+    this.body.collideWorldBounds = true;
+    this.body.onWorldBounds = true;
 
     // TIMERS
     this.jumpTimer = 0;
     
     // handlers
     this.cursors = cursors;
+
+    // Speech text
+    this.speechText = this.scene.make.text({
+      add: true,
+      x: config.x - 8,
+      y: config.y - 16,
+      text: 'Memory',
+      style: {
+        fontSize: '12px',
+        fontFamily: 'Arial',
+        color: '#ffffff',
+        align: 'center'
+      }
+    });
+    this.speechText.visible = false;
+    this.speechTimer = 0;
+    this.teleportList = [];
+  }
+
+  setTeleportList(newTeleportList) {
+    this.teleportList = newTeleportList;
+    console.log(this.teleportList.getChildren());
   }
 
   getMemory() {
-    console.log('GOT MEMORY');
+    this.speechText.visible = true;
+    this.speechText.text = MEMORIES[MEMORY_COUNT];
+    this.speechTimer = this.scene.time.now;
+    MEMORY_COUNT++;
   }
 
-  update() {
+  fallOutOfBounds() {
+    this.speechText.visible = true;
+    this.speechText.text = 'I need to be more careful.';
+    this.speechTimer = this.scene.time.now;
+    this.setPosition(this.spawnPosition.x, this.spawnPosition.y);
+  }
+
+  update(memoryList) {
+    this.scene.physics.overlap(this, memoryList, this.getMemory, (player, memory) => memory.destroy(), this);
+    this.scene.physics.overlap(this, this.teleportList, () => console.log('tele'), (player, teleport) => console.log(teleport), this);
+
     this.body.setVelocityX(0);
+    this.speechText.setPosition(this.body.x - (this.speechText.displayWidth / 3), this.body.y - (16 + this.speechText.displayHeight));
   
     if (this.cursors.right.isDown) {
       this.body.setVelocityX(SPEED)
@@ -37,6 +85,10 @@ export default class Player extends Physics.Arcade.Sprite {
       } else if (this.body.onFloor() && this.jumpTimer !== 0) {
         this.jumpTimer = 0;
       }
+    }
+
+    if (this.speechText.visible && (this.scene.time.now - this.speechTimer) > 1750) {
+      this.speechText.visible = false;
     }
   }
 };
