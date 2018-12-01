@@ -52,11 +52,11 @@ export default class Player extends Physics.Arcade.Sprite {
   getMemory() {
     this.speechText.visible = true;
     const unreadMemories = MEMORIES.filter(memory => !memory.read);
-    const randomInt = util.randomIntFromInterval(0, 2);
-    this.speechText.text = MEMORIES[randomInt].description;
+    const randomInt = util.randomIntFromInterval(0, unreadMemories.length - 1);
+    this.speechText.text = unreadMemories[randomInt].description;
     this.speechTimer = this.scene.time.now;
 
-    MEMORIES[randomInt].read = true;
+    MEMORIES.find(memory => memory.id === unreadMemories[randomInt].id).read = true;
     MEMORY_COUNT++;
   }
 
