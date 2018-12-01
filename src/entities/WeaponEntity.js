@@ -9,10 +9,10 @@ export default class WeaponEntity extends Phaser.GameObjects.Image {
 };
 
 export class GunEntity extends WeaponEntity {
-  
+
   constructor(scene) {
     super(scene, 'bullet');
-    
+
     this.lastFired = 0;
     this.speed = Phaser.Math.GetSpeed(400, 1);
 
@@ -21,38 +21,53 @@ export class GunEntity extends WeaponEntity {
       maxSize: 20,
       runChildUpdate: true
     });
-    
-    // speed = Phaser.Math.GetSpeed(300, 1);
+
+    this.lastDirection = {
+      right: true,
+      left: false
+    };
   }
 
   fire(x, y) {
-      this.setPosition(x, y - 50);
+    if (this.lastDirection.right) {
+      this.setPosition(x + 25, y);
+    }
+    if (this.lastDirection.left) {
+      this.setPosition(x - 25, y);
+    }
 
-      this.setActive(true);
-      this.setVisible(true);
+    this.setActive(true);
+    this.setVisible(true);
   }
 
   update(time, delta) {
-      this.y -= this.speed * delta;
+    if (this.lastDirection.right) {
+      this.x += this.speed * delta;
+    }
+    if (this.lastDirection.left) {
+      this.x -= this.speed * delta;
+    }
 
-      if (this.y < -50)
-      {
-          this.setActive(false);
-          this.setVisible(false);
-      }
+    if (this.x < this.x - 50 || this.x > this.x + 50) {
+      this.setActive(false);
+      this.setVisible(false);
+    }
   }
 
   attack(scene, player) {
-    if (scene.time.now > this.lastFired)
-    {
-        var bullet = this.bullets.get();
+    if (scene.time.now > this.lastFired) {
+      const bullet = this.bullets.get();
 
-        if (bullet)
-        {
-            bullet.fire(player.x, player.y);
+      if (bullet) {
+        bullet.lastDirection = Object.assign(
+          {},
+          player.lastDirection
+        );
 
-            this.lastFired = scene.time.now + 50;
-        }
+        bullet.fire(player.x, player.y);
+
+        this.lastFired = scene.time.now + 50;
+      }
     }
   }
 };

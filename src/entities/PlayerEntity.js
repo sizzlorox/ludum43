@@ -53,6 +53,10 @@ export default class Player extends Physics.Arcade.Sprite {
     this.attackKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.SPACE);
     this.healthBar = healthBar;
     this.alive = true;
+    this.lastDirection = {
+      right: true,
+      left: false
+    };
 
     this.equippedWeapon = new GunEntity(this.scene);
   }
@@ -129,8 +133,14 @@ export default class Player extends Physics.Arcade.Sprite {
     this.speechText.setPosition(this.body.x - (this.speechText.displayWidth / 3), this.body.y - (16 + this.speechText.displayHeight));
 
     if (this.cursors.right.isDown) {
+      this.lastDirection.right = true;
+      this.lastDirection.left = false;
+
       this.body.setVelocityX(SPEED)
     } else if (this.cursors.left.isDown) {
+      this.lastDirection.right = false;
+      this.lastDirection.left = true;
+
       this.body.setVelocityX(-SPEED)
     }
 
