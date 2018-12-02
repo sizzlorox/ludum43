@@ -130,6 +130,18 @@ export default class Player extends Physics.Arcade.Sprite {
     this.body.setVelocityY(0);
   }
 
+  receiveNmeMelee(deltaTime, nme) {
+    if (!this.alive) {
+      return;
+    }
+
+    if (deltaTime - nme.meleeTimer > nme.meleeDelay) {
+      this.healthBar.decrease(nme.meleeDmg);
+      this.emit('meleeDamage', this);
+      nme.meleeTimer = deltaTime;
+    }
+  }
+
   update(memoryList) {
     if (!this.alive) {
       this.died();
