@@ -58,7 +58,7 @@ export default class Player extends Physics.Arcade.Sprite {
       left: false
     };
 
-    this.equippedWeapon = new GunEntity(this.scene);
+    this.equippedWeapon = new GunEntity(this.scene, worldLayer);
   }
 
   setTeleportList(newTeleportList) {

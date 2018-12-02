@@ -35,6 +35,7 @@ export default class GameScene extends Scene {
     this.load.image('player', 'assets/player.png');       // Loads player image
     this.load.image('nme', 'assets/nme.png')        // Loads enemy image
     this.load.image('memory', 'assets/console_w.png');       // Loads memory image
+    this.load.image('bullet', 'assets/bullet.png');
   }
 
   create() {
