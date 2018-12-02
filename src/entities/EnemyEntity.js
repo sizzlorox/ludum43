@@ -17,10 +17,16 @@ export default class Enemy extends DamageableEntity {
     this.body.onWorldBounds = true;
 
     this.alive = true;
+    this.meleeDmg = config.key === 'nme' ? 50 : 25;
+    this.meleeDelay = config.key === 'nme' ? 500 : 500 / 2;
+    this.movementSpeed = config.key === 'nme' ? SPEED : SPEED * 3;
+    this.maxHealth = config.key === 'nme' ? 100 : 50
+    this.health = this.maxHealth;
 
     // TIMERS
     this.speechTimer = util.randomIntFromInterval(0, 30000);
     this.decisionTimer = 0;
+    this.meleeTimer = 0;
 
     // Speech text
     this.speechText = this.scene.make.text({
@@ -50,17 +56,26 @@ export default class Enemy extends DamageableEntity {
 
   update() {
     if (!this.alive) {
+      if (this.speechText.visible) {
+        this.speechText.visible = false;
+      }
       return;
     }
 
-    if ((this.scene.time.now - this.decisionTimer) > 250) {
+    if ((this.scene.time.now - this.decisionTimer) > 250 + util.randomIntFromInterval(0, 750)) {
       if (util.randomIntFromInterval(0, 1) === 1) {
-        this.body.setVelocityX(SPEED);
+        this.body.setVelocityX(this.movementSpeed);
       } else {
-        this.body.setVelocityX(-SPEED);
+        this.body.setVelocityX(-this.movementSpeed);
       }
       this.decisionTimer = this.scene.time.now;
     }
+
+    // DO NOT SPEAK IF NME HAS DIFFERENT KEY
+    if (this.key !== 'nme') {
+      return;
+    }
+
     this.speechText.setPosition(this.body.x - (this.speechText.displayWidth / 3), this.body.y - (16 + this.speechText.displayHeight));
 
     if (!this.speechText.visible && (this.scene.time.now - this.speechTimer) > 6000) {

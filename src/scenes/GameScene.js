@@ -34,6 +34,7 @@ export default class GameScene extends Scene {
     // GAME ASSETS
     this.load.image('player', 'assets/player.png');       // Loads player image
     this.load.image('nme', 'assets/nme.png')        // Loads enemy image
+    this.load.image('nme2', 'assets/nme2.png')
     this.load.image('memory', 'assets/console_w.png');       // Loads memory image
     this.load.image('bullet', 'assets/bullet.png');
   }
@@ -77,12 +78,12 @@ export default class GameScene extends Scene {
 
     // Lists
     this.nmeList = [];
-    nmeSpawns.forEach(nmeSpawn => this.nmeList.push(
+    nmeSpawns.forEach((nmeSpawn, index) => this.nmeList.push(
       new EnemyEntity({
         scene: this,
         x: nmeSpawn.x,
         y: nmeSpawn.y,
-        key: 'nme',
+        key: index % 2 ? 'nme' : 'nme2',
       },
       worldLayer,
       npcAvoidLayer
@@ -116,6 +117,7 @@ export default class GameScene extends Scene {
 
     // Player Events
     this.Player.on('death', () => this.cameras.main.flash(500, 255, 0, 0, false));
+    this.Player.on('meleeDamage', () => this.cameras.main.shake(250, 0.001, false)); // shake shake shake senora! shake your body line!
 
     if (this.DEBUG) {
       const debugGraphics = this.add.graphics().setAlpha(0.75);
@@ -128,6 +130,7 @@ export default class GameScene extends Scene {
   }
 
   update() {
+    this.physics.overlap(this.Player, this.nmeList, (player, nme) => this.Player.receiveNmeMelee(this.time.now, nme), null, this);
     this.Player.update(this.memoryList);
     this.nmeList.forEach(nme => nme.update());
     this.healthBar.updatePosition(this.cameras.main.worldView.x, this.cameras.main.worldView.y);

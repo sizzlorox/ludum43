@@ -75,7 +75,7 @@ export class BulletEntity extends Phaser.GameObjects.Image {
     };
 
     this.alive = true;
-    this.damagePoints = 50;
+    this.damagePoints = 25;
   }
 
   setWorldLayer(layer) {
