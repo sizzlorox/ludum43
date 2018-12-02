@@ -17,10 +17,11 @@ export default class Enemy extends DamageableEntity {
     this.body.onWorldBounds = true;
 
     this.alive = true;
-    this.meleeDmg = config.key === 'nme' ? 50 : 25;
-    this.meleeDelay = config.key === 'nme' ? 500 : 500 / 2;
-    this.movementSpeed = config.key === 'nme' ? SPEED : SPEED * 3;
-    this.maxHealth = config.key === 'nme' ? 100 : 50
+    this.key = config.key;
+    this.meleeDmg = this.key === 'nme' ? 50 : 25;
+    this.meleeDelay = this.key === 'nme' ? 500 : 500 / 2;
+    this.movementSpeed = this.key === 'nme' ? SPEED : SPEED * 3;
+    this.maxHealth = this.key === 'nme' ? 100 : 50
     this.health = this.maxHealth;
 
     // TIMERS
@@ -63,10 +64,21 @@ export default class Enemy extends DamageableEntity {
     }
 
     if ((this.scene.time.now - this.decisionTimer) > 250 + util.randomIntFromInterval(0, 750)) {
-      if (util.randomIntFromInterval(0, 1) === 1) {
-        this.body.setVelocityX(this.movementSpeed);
+      if (this.key === 'nme') {
+        if (util.randomIntFromInterval(0, 1) === 1) {
+          this.body.setVelocityX(this.movementSpeed);
+        } else {
+          this.body.setVelocityX(-this.movementSpeed);
+        }
       } else {
-        this.body.setVelocityX(-this.movementSpeed);
+        const decision = util.randomIntFromInterval(0, 3);
+        if (decision === 1) {
+          this.body.setVelocityX(this.movementSpeed);
+        } else if (decision === 2) {
+          this.body.setVelocityX(-this.movementSpeed);
+        } else if (decision === 3) {
+          this.body.setVelocityY(-150);
+        }
       }
       this.decisionTimer = this.scene.time.now;
     }
