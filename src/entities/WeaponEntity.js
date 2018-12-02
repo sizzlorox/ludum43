@@ -48,9 +48,8 @@ export class GunEntity extends WeaponEntity {
       this.x -= this.speed * delta;
     }
 
-    if (this.x < this.x - 50 || this.x > this.x + 50) {
-      this.setActive(false);
-      this.setVisible(false);
+    if (this.x < -500 || this.x > 1000) {
+      this.destroy();
     }
   }
 
