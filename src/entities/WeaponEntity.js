@@ -1,3 +1,6 @@
+import DamageableEntity from './DamageableEntity';
+import * as _ from 'lodash';
+
 export default class WeaponEntity extends Phaser.GameObjects.Image {
   constructor(scene, image) {
     super(scene, 0, 0, image || 'weapon');
@@ -17,7 +20,7 @@ export class GunEntity extends WeaponEntity {
     this.speed = Phaser.Math.GetSpeed(400, 1);
 
     this.bullets = scene.add.group({
-      classType: GunEntity,
+      classType: BulletEntity,
       maxSize: 20,
       runChildUpdate: true
     });
@@ -26,31 +29,6 @@ export class GunEntity extends WeaponEntity {
       right: true,
       left: false
     };
-  }
-
-  fire(x, y) {
-    if (this.lastDirection.right) {
-      this.setPosition(x + 25, y);
-    }
-    if (this.lastDirection.left) {
-      this.setPosition(x - 25, y);
-    }
-
-    this.setActive(true);
-    this.setVisible(true);
-  }
-
-  update(time, delta) {
-    if (this.lastDirection.right) {
-      this.x += this.speed * delta;
-    }
-    if (this.lastDirection.left) {
-      this.x -= this.speed * delta;
-    }
-
-    if (this.x < -500 || this.x > 1000) {
-      this.destroy();
-    }
   }
 
   attack(scene, player) {
@@ -68,5 +46,71 @@ export class GunEntity extends WeaponEntity {
         this.lastFired = scene.time.now + 50;
       }
     }
+  }
+};
+
+export class BulletEntity extends Phaser.GameObjects.Image {
+
+  constructor(scene) {
+    super(scene, 0, 0, 'bullet');
+
+    this.scene.physics.world.enable(this);
+    this.body.setAllowGravity(false);
+    this.setSize(16, 16);
+
+    this.lastFired = 0;
+    this.speed = Phaser.Math.GetSpeed(400, 1);
+
+    this.lastDirection = {
+      right: true,
+      left: false
+    };
+
+    this.damagePoints = 50;
+  }
+
+  fire(x, y) {
+    if (this.lastDirection.right) {
+      this.setPosition(x + 25, y);
+    }
+
+    if (this.lastDirection.left) {
+      this.setPosition(x - 25, y);
+    }
+
+    this.setActive(true);
+    this.setVisible(true);
+  }
+
+  update(time, delta) {
+
+    if (this.lastDirection.right) {
+      this.x += this.speed * delta;
+    }
+
+    if (this.lastDirection.left) {
+      this.x -= this.speed * delta;
+    }
+
+    if (this.didDamage()) {
+      return this.destroy();
+    }
+
+    if (this.destroy && this.x < -500 || this.x > 10000) {
+      this.destroy();
+    }
+  }
+
+  didDamage() {
+    var didOverlap = false;
+
+    var damageables = _.filter(this.scene.children.list, (item) => item instanceof DamageableEntity)
+    this.scene.physics.overlap(this, damageables, null, (a, b, c) => {
+      b.onDamage(a);
+
+      didOverlap = true;
+    }, this);
+
+    return didOverlap;
   }
 };

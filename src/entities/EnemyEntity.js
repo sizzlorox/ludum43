@@ -1,10 +1,11 @@
 import { Physics } from 'phaser';
 import util from '../util';
+import DamageableEntity from './DamageableEntity';
 
 // CONSTANTS
 const SPEED = 75;
 
-export default class Enemy extends Physics.Arcade.Sprite {
+export default class Enemy extends DamageableEntity {
   constructor(config, worldLayer, npcAvoidLayer) {
     super(config.scene, config.x, config.y, config.key);
     this.spawnPosition = { x: config.x, y: config.y };
