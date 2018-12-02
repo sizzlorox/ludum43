@@ -35,6 +35,7 @@ export default class GameScene extends Scene {
     this.load.image('player', 'assets/player.png');       // Loads player image
     this.load.image('nme', 'assets/nme.png')        // Loads enemy image
     this.load.image('memory', 'assets/console_w.png');       // Loads memory image
+    this.load.image('bullet', 'assets/bullet.png');
   }
 
   create() {
@@ -112,6 +113,9 @@ export default class GameScene extends Scene {
     // World events
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels, 64, true, true, true, true);
     this.physics.world.on('worldbounds', (body) => body.gameObject.fallOutOfBounds());
+
+    // Player Events
+    this.Player.on('death', () => this.cameras.main.flash(500, 255, 0, 0, false));
 
     if (this.DEBUG) {
       const debugGraphics = this.add.graphics().setAlpha(0.75);

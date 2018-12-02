@@ -13,22 +13,27 @@ export default class WeaponEntity extends Phaser.GameObjects.Image {
 
 export class GunEntity extends WeaponEntity {
 
-  constructor(scene) {
+  constructor(scene, worldLayer) {
     super(scene, 'bullet');
 
     this.lastFired = 0;
     this.speed = Phaser.Math.GetSpeed(400, 1);
 
-    this.bullets = scene.add.group({
+    this.bullets = this.scene.add.group({
       classType: BulletEntity,
       maxSize: 20,
       runChildUpdate: true
     });
 
+    this.worldLayer = worldLayer;
     this.lastDirection = {
       right: true,
       left: false
     };
+  }
+
+  getBulletGroup() {
+    return this.bullets;
   }
 
   attack(scene, player) {
@@ -36,6 +41,7 @@ export class GunEntity extends WeaponEntity {
       const bullet = this.bullets.get();
 
       if (bullet) {
+        bullet.setWorldLayer(this.worldLayer);
         bullet.lastDirection = Object.assign(
           {},
           player.lastDirection
@@ -56,7 +62,9 @@ export class BulletEntity extends Phaser.GameObjects.Image {
 
     this.scene.physics.world.enable(this);
     this.body.setAllowGravity(false);
-    this.setSize(16, 16);
+    this.body.collideWorldBounds = true;
+    this.body.onWorldBounds = true;
+    this.setSize(8, 8);
 
     this.lastFired = 0;
     this.speed = Phaser.Math.GetSpeed(400, 1);
@@ -66,7 +74,22 @@ export class BulletEntity extends Phaser.GameObjects.Image {
       left: false
     };
 
+    this.alive = true;
     this.damagePoints = 50;
+  }
+
+  setWorldLayer(layer) {
+    this.worldLayer = layer;
+  }
+
+  fallOutOfBounds() {
+    this.destroy();
+  }
+
+  collideObstacle() {
+    this.alive = false;
+    this.destroy();
+    // emit particle
   }
 
   fire(x, y) {
@@ -83,6 +106,11 @@ export class BulletEntity extends Phaser.GameObjects.Image {
   }
 
   update(time, delta) {
+    this.scene.physics.overlap(this, this.worldLayer, (bullet, tile) => tile.properties.isCollidable ? bullet.collideObstacle() : null, null, this);
+
+    if (!this.alive) {
+      return;
+    }
 
     if (this.lastDirection.right) {
       this.x += this.speed * delta;
@@ -94,10 +122,6 @@ export class BulletEntity extends Phaser.GameObjects.Image {
 
     if (this.didDamage()) {
       return this.destroy();
-    }
-
-    if (this.destroy && this.x < -500 || this.x > 10000) {
-      this.destroy();
     }
   }
 
