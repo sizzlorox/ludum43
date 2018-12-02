@@ -71,13 +71,21 @@ export default class Enemy extends DamageableEntity {
           this.body.setVelocityX(-this.movementSpeed);
         }
       } else {
-        const decision = util.randomIntFromInterval(0, 3);
-        if (decision === 1) {
-          this.body.setVelocityX(this.movementSpeed);
-        } else if (decision === 2) {
-          this.body.setVelocityX(-this.movementSpeed);
-        } else if (decision === 3) {
-          this.body.setVelocityY(-150);
+        const decision = util.randomIntFromInterval(0, 2);
+        switch (decision) {
+          case 0:
+            this.body.setVelocityX(this.movementSpeed);
+            break;
+          case 1:
+            this.body.setVelocityX(-this.movementSpeed);
+            break;
+          case 2:
+            if (this.body.onFloor()) {
+              this.body.setVelocityY(-150);
+            } else {
+              this.body.setVelocityX(this.movementSpeed);
+            }
+            break;
         }
       }
       this.decisionTimer = this.scene.time.now;
