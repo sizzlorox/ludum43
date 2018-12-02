@@ -1,4 +1,5 @@
-import { Physics } from 'phaser';
+
+import SPEECH from '../data/enemySpeech';
 import util from '../util';
 import DamageableEntity from './DamageableEntity';
 
@@ -18,7 +19,7 @@ export default class Enemy extends DamageableEntity {
     this.alive = true;
 
     // TIMERS
-    this.speechTimer = 0;
+    this.speechTimer = util.randomIntFromInterval(0, 30000);
     this.decisionTimer = 0;
 
     // Speech text
@@ -42,20 +43,35 @@ export default class Enemy extends DamageableEntity {
     this.destroy();
   }
 
+  randomSpeech() {
+    const randomInt = util.randomIntFromInterval(0, SPEECH.length - 1);
+    this.speechText.text = SPEECH[randomInt].description;
+  }
+
   update() {
-    if (this.alive) {
-      if ((this.scene.time.now - this.decisionTimer) > 250) {
-        if (util.randomIntFromInterval(0, 1) === 1) {
-          this.body.setVelocityX(SPEED);
-        } else {
-          this.body.setVelocityX(-SPEED);
-        }
-        this.decisionTimer = this.scene.time.now;
+    if (!this.alive) {
+      return;
+    }
+
+    if ((this.scene.time.now - this.decisionTimer) > 250) {
+      if (util.randomIntFromInterval(0, 1) === 1) {
+        this.body.setVelocityX(SPEED);
+      } else {
+        this.body.setVelocityX(-SPEED);
       }
-  
-      if (this.speechText.visible && (this.scene.time.now - this.speechTimer) > 1750) {
-        this.speechText.visible = false;
-      }
+      this.decisionTimer = this.scene.time.now;
+    }
+    this.speechText.setPosition(this.body.x - (this.speechText.displayWidth / 3), this.body.y - (16 + this.speechText.displayHeight));
+
+    if (!this.speechText.visible && (this.scene.time.now - this.speechTimer) > 6000) {
+      this.speechText.visible = true;
+      this.randomSpeech();
+      this.speechTimer = this.scene.time.now;
+    }
+
+    if (this.speechText.visible && (this.scene.time.now - this.speechTimer) > 1750) {
+      this.speechText.visible = false;
+      this.speechTimer = this.scene.time.now + util.randomIntFromInterval(0, 30000);
     }
   }
 };

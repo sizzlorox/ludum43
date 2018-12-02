@@ -114,6 +114,9 @@ export default class GameScene extends Scene {
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels, 64, true, true, true, true);
     this.physics.world.on('worldbounds', (body) => body.gameObject.fallOutOfBounds());
 
+    // Player Events
+    this.Player.on('death', (test) => this.cameras.main.flash(500, 255, 0, 0, false));
+
     if (this.DEBUG) {
       const debugGraphics = this.add.graphics().setAlpha(0.75);
       worldLayer.renderDebug(debugGraphics, {

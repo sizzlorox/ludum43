@@ -117,12 +117,20 @@ export default class Player extends Physics.Arcade.Sprite {
     }
   }
 
+  died() {
+    // TODO: CHANGET HIS TO BE READ FROM GAME STATE IN FUTURE
+    if (this.speechText.text !== 'YOU DEAD') {
+      this.emit('death', this);
+    }
+    this.speechText.visible = true;
+    this.speechText.text = 'YOU DEAD';
+    this.speechText.setPosition(this.body.x - (this.speechText.displayWidth / 3), this.body.y - (16 + this.speechText.displayHeight));
+    this.angle = 75;
+  }
+
   update(memoryList) {
     if (!this.alive) {
-      this.speechText.visible = true;
-      this.speechTimer = this.scene.time.now;
-      this.speechText.text = 'YOU DEAD';
-
+      this.died();
       return;
     }
 
