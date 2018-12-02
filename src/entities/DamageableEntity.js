@@ -2,7 +2,6 @@ import { Physics } from 'phaser';
 
 export default class DamageableEntity extends Physics.Arcade.Sprite {
 
-
   constructor(...args) {
     super(...args);
     this.alive = true;
