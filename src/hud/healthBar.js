@@ -17,6 +17,10 @@ export default class HealthBar {
     this.y = y;
   }
 
+  endGame() {
+    this.value = 0;
+  }
+
   decrease(amount) {
     this.value -= amount;
 

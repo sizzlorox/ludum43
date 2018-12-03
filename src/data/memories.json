@@ -2,26 +2,31 @@
   {
     "id": 1,
     "type": 1,
-    "description": "Solstice Industries... isn't that...?"
+    "description": "Solstice Industries... isn't that...?",
+    "read": false
   },
   {
     "id": 2,
     "type": 1,
-    "description": "Memory alteration?"
+    "description": "Memory alteration?",
+    "read": false
   },
   {
     "id": 3,
     "type": 1,
-    "description": "This doesn't make any sense... Why would I agree to this?"
+    "description": "This doesn't make any sense... Why would I agree to this?",
+    "read": false
   },
   {
     "id": 4,
     "type": 1,
-    "description": "I was promoted?"
+    "description": "I was promoted?",
+    "read": false
   },
   {
     "id": 5,
     "type": 1,
-    "description": "So they had upgraded my security level..."
+    "description": "So they had upgraded my security level...",
+    "read": false
   }
 ]
