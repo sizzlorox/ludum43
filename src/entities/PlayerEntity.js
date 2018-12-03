@@ -59,6 +59,7 @@ export default class Player extends Physics.Arcade.Sprite {
     };
 
     this.equippedWeapon = new GunEntity(this.scene, worldLayer);
+    this.endGame = false;
   }
 
   setTeleportList(newTeleportList) {
@@ -99,7 +100,19 @@ export default class Player extends Physics.Arcade.Sprite {
   }
 
   teleportTo(destTeleport) {
-    if (Input.Keyboard.JustDown(this.useKey)) {
+    if (Input.Keyboard.JustDown(this.useKey) && this.alive) {
+      if (MEMORIES.filter(memory => !memory.read).length > 0) {
+        this.speechText.visible = true;
+        this.speechText.text = 'I need to know more about what happened before I continue.';
+        this.speechTimer = this.scene.time.now;
+        return;
+      }
+      if (destTeleport.name === 'End Level' && !this.speechText.visible) {
+        this.endGame = true;
+        this.healthBar.endGame();
+        this.died();
+        return;
+      }
       const destination = this.teleportList.find(teleport => teleport.name === destTeleport.destination);
       this.setPosition(destination.x, destination.y);
     }
@@ -119,11 +132,11 @@ export default class Player extends Physics.Arcade.Sprite {
 
   died() {
     // TODO: CHANGET HIS TO BE READ FROM GAME STATE IN FUTURE
-    if (this.speechText.text !== 'YOU DEAD') {
+    if (this.speechText.text !== 'YOU DEAD' && this.speechText.text !== 'You\'ve fulfilled your destiny...') {
       this.emit('death', this);
     }
     this.speechText.visible = true;
-    this.speechText.text = 'YOU DEAD';
+    this.speechText.text = this.endGame ? 'You\'ve fulfilled your destiny...' : 'YOU DEAD';
     this.speechText.setPosition(this.body.x - (this.speechText.displayWidth / 3), this.body.y - (16 + this.speechText.displayHeight));
     this.angle = 75;
     this.body.setVelocityX(0);
