@@ -101,13 +101,13 @@ export default class Player extends Physics.Arcade.Sprite {
 
   teleportTo(destTeleport) {
     if (Input.Keyboard.JustDown(this.useKey) && this.alive) {
-      if (MEMORIES.filter(memory => !memory.read).length > 0) {
-        this.speechText.visible = true;
-        this.speechText.text = 'I need to know more about what happened before I continue.';
-        this.speechTimer = this.scene.time.now;
-        return;
-      }
       if (destTeleport.name === 'End Level' && !this.speechText.visible) {
+        if (MEMORIES.filter(memory => !memory.read).length > 0) {
+          this.speechText.visible = true;
+          this.speechText.text = 'I need to know more about what happened before I continue.';
+          this.speechTimer = this.scene.time.now;
+          return;
+        }
         this.endGame = true;
         this.healthBar.endGame();
         this.died();
